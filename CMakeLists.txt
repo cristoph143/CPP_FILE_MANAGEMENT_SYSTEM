@@ -12,7 +12,7 @@ endif()
 project ("CPP_FILE_MANAGE")
 
 # Add source to this project's executable.
-add_executable (CPP_FILE_MANAGE "CPP_FILE_MANAGE.cpp" "CPP_FILE_MANAGE.h" "include/FileOps/FileOpsUtility.h" "include/MenuOps/Menu.h" "src/FileOps/FileOpsUtility.cpp" "src/MenuOps.h/Menu.cpp")
+add_executable(CPP_FILE_MANAGE "CPP_FILE_MANAGE.cpp" "CPP_FILE_MANAGE.h" "include/FileOps/FileOpsUtility.h" "include/MenuOps/Menu.h" "src/FileOps/FileOpsUtility.cpp" "src/MenuOps/Menu.cpp" "include/FileOps/FileOps.h" "src/FileOps/FileOps.cpp")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET CPP_FILE_MANAGE PROPERTY CXX_STANDARD 20)

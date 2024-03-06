@@ -1,32 +1,30 @@
-// Place this file under include/MenuOps/Menu.h
-#ifndef MENU_H
-#define MENU_H
+#ifndef MENUOPS_MENU_H
+#define MENUOPS_MENU_H
 
-#include <functional>
 #include <string>
 #include <vector>
+#include <functional>
 
 namespace MenuOps {
 
-	struct MenuItem {
-		std::string description;
-		std::function<void()> action;
-	};
+    struct MenuItem {
+        std::string description;
+        std::function<void()> action;
+    };
 
-	class Menu {
-	public:
-		Menu();
-		void addMenuItem(const MenuItem& item);
-		void display() const;
-		void processChoice(int choice);
-		int getChoice() const;
-		void run();
+    class Menu {
+    public:
+        Menu();
+        void addMenuItem(const std::string& description, const std::function<void()>& action);
+        void run();
 
-	private:
-		std::vector<MenuItem> items;
-		static void clearScreen();
-	};
+    private:
+        std::vector<MenuItem> items;
+        void display() const;
+        int getValidChoice() const;
+        static void clearInputBuffer();
+    };
 
 } // namespace MenuOps
 
-#endif // MENU_H
+#endif // MENUOPS_MENU_H

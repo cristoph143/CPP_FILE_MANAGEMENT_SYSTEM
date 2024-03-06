@@ -9,18 +9,27 @@ using namespace std;
 #include "./include/MenuOps/Menu.h"
 
 #include <iostream>
+#include <functional>
+
+using namespace MenuOps;
+using namespace FileOps;
+
+class EnhancedMenu : public Menu {
+public:
+    void initialize() {
+        addMenuItem("Create and save file", []() {
+            FileOpsUtility::createAndSaveFile();
+            });
+        addMenuItem("Read file", []() {
+            FileOpsUtility::readFiles();
+            });
+    }
+};
 
 int main() {
-	MenuOps::Menu menu;
-	FileOps::FileOpsUtility file;
-
-	// Add menu items that are bound to the static methods in FileOpsUtility.
-	menu.addMenuItem({ "Create and save file", file.createAndSaveFile });
-	menu.addMenuItem({ "Read file", file.readFiles });
-
-	// Run the menu to allow the user to choose options.
-	menu.run();
-
-	std::cout << "Exiting...\n";
-	return 0;
+    EnhancedMenu menu;
+    menu.initialize();
+    menu.run();
+    std::cout << "Exiting program.\n";
+    return 0;
 }
