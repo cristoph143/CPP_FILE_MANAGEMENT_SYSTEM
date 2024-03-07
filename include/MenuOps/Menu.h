@@ -5,21 +5,23 @@
 #include <vector>
 #include <functional>
 
+using namespace std;
+
 namespace MenuOps {
 
     struct MenuItem {
-        std::string description;
-        std::function<void()> action;
+        string description;
+        function<void()> action;
     };
 
     class Menu {
     public:
         Menu();
-        void addMenuItem(const std::string& description, const std::function<void()>& action);
+        void addMenuItem(const string& description, const function<void()>& action);
         void run();
 
     private:
-        std::vector<MenuItem> items;
+        vector<MenuItem> items;
         void display() const;
         int getValidChoice() const;
         static void clearInputBuffer();

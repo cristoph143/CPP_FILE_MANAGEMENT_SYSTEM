@@ -13,6 +13,7 @@ using namespace std;
 
 using namespace MenuOps;
 using namespace FileOps;
+using namespace std;
 
 class EnhancedMenu : public Menu {
 public:
@@ -30,6 +31,6 @@ int main() {
     EnhancedMenu menu;
     menu.initialize();
     menu.run();
-    std::cout << "Exiting program.\n";
+    cout << "Exiting program.\n";
     return 0;
 }
