@@ -10,6 +10,8 @@ using namespace std;
 namespace FileOps {
 
     void FileOpsUtility::createAndSaveFile() {
+        string directoryPath = "files";
+        createDirectory(directoryPath);
         cout << "Enter text to be saved in the file. End with EOF (Ctrl+D/Ctrl+Z):" << endl;
         string userInput;
         stringstream inputBuffer;
@@ -34,15 +36,43 @@ namespace FileOps {
         header.payloadSize = payload.size();
 
         // Specify a file name for output.
-        const string fileName = "output.txt";
+        //const string fileName = "output.txt";
+
+        // Use getFilenameFromUser to get the filename for saving the file
+        string fileName = getFilenameFromUser("Enter the filename where text will be saved:", "default_output.txt");
+
         WriteToFile(fileName.c_str(), header);  // Make sure WriteToFile accepts the proper arguments.
     }
+
+    string FileOpsUtility::getFilenameFromUser(const string& prompt, const string& defaultFilename) {
+        cout << prompt << endl;
+
+        // Clear any errors with cin and ignore any leftover characters in the input buffer.
+        cin.clear(); // Reset any error flags that might be set.
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear out the input buffer.
+
+        string fileName;
+        getline(cin, fileName);
+
+        // Check if anything was entered; if not, use the default filename.
+        if (fileName.empty()) {
+            fileName = defaultFilename;
+            cout << "No filename entered. Using default: " << fileName << endl;
+        }
+
+        return fileName;
+    }
+
 
     void FileOpsUtility::readFiles() {
         cout << "Read files" << endl;
 
+        // Get filename from user
+        string fileName = getFilenameFromUser("Enter the filename to read:", "default_output.txt");
+
+
         // Specify the file name to read from, which should match the one used in createAndSaveFile.
-        const string fileName = "output.txt";
+        //const string fileName = "output.txt";
         HeaderInfo* header = ReadFromFile(fileName.c_str());  // Ensure that ReadFromFile accepts the file name correctly.
 
         if (header) {
