@@ -31,7 +31,9 @@ namespace FileOps {
 				std::cout << "Valid data found!" << std::endl;
 				std::cout << "After Reading:" << std::endl;
 				PrintHeaderInfo(*headerInfo);
-				// No need to write anything here, as this is just reading
+				// Now, write back the updated read count.
+				WriteToFileOps writer;
+				writer.WriteToFile(filename, *headerInfo);
 				return headerInfo.release(); // This should not cause E0153 if headerInfo is std::unique_ptr
 			}
 		}
