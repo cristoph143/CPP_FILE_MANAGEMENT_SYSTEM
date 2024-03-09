@@ -1,8 +1,9 @@
-// include/FileOps/FileOpsUtility.h
-#ifndef FILEOPSUTILITY_H
-#define FILEOPSUTILITY_H
+#pragma once
 
 #include <string>
+#include <iostream>
+#include <sstream>
+#include <vector>
 
 using namespace std;
 
@@ -15,6 +16,4 @@ namespace FileOps {
 		static string getFilenameFromUser(const string& prompt, const string& defaultFilename);
 	};
 
-} // namespace FileOps
-
-#endif // FILEOPSUTILITY_H
+}
