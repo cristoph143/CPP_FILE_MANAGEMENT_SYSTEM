@@ -9,37 +9,61 @@ namespace FileOps {
 		std::cout << "Reading from file: " << directory << "/" << filename << std::endl;
 		vector<size_t> arrFileDataSize(MAXFILE_COUNT, 0);
 		vector<unique_ptr<char[]>> arrFileData(MAXFILE_COUNT);
+		bool fileFound = false;
 
 		// Read data from the primary file and its backups.
 		for (int i = 0; i < MAXFILE_COUNT; ++i) {
-			string backupFileName = filename;
+			string currentFileName = filename;
 			if (i > 0) {
-				backupFileName += "_" + to_string(i);
+				currentFileName += "_" + to_string(i);
 			}
-			string filePath = getFullPath(directory, backupFileName.c_str());
+			string filePath = getFullPath(directory, currentFileName.c_str());
+
+			// Attempt to read file data.
 			readFileData(filePath, arrFileData[i], arrFileDataSize[i]);
+
+			// Check if any file data was successfully read.
+			if (arrFileData[i]) {
+				fileFound = true;
+			}
 		}
 
-		// Find the index of the first valid data set.
+		if (!fileFound) {
+			std::cerr << "Error: All files (including backups) are missing or corrupted." << std::endl;
+			return nullptr;
+		}
+
+		// Find the index of the first valid and consistent data set.
 		size_t validIndex = FindValidIndex(arrFileData, arrFileDataSize);
+		if (validIndex == static_cast<size_t>(-1)) {
+			std::cerr << "Error: No valid data found in any files." << std::endl;
+			return nullptr;
+		}
 
 		// Process valid data and write updates safely if valid data is found.
-		if (validIndex != static_cast<size_t>(-1)) {
-			HeaderInfo* rawHeaderInfo = ProcessValidData(arrFileData[validIndex].get(), arrFileDataSize[validIndex]);
-			std::unique_ptr<HeaderInfo> headerInfo(rawHeaderInfo);
-			if (headerInfo) {
-				std::cout << "Valid data found!" << std::endl;
-				std::cout << "After Reading:" << std::endl;
-				PrintHeaderInfo(*headerInfo);
-				// Now, write back the updated read count.
-				WriteToFileOps writer;
-				writer.WriteToFile(filename, *headerInfo);
-				return headerInfo.release(); // This should not cause E0153 if headerInfo is std::unique_ptr
+		HeaderInfo* rawHeaderInfo = ProcessValidData(arrFileData[validIndex].get(), arrFileDataSize[validIndex]);
+		std::unique_ptr<HeaderInfo> headerInfo(rawHeaderInfo);
+		if (headerInfo) {
+			std::cout << "Valid data found in file index " << validIndex << "!" << std::endl;
+			PrintHeaderInfo(*headerInfo);
+
+			// Write back the updated read count to the primary file.
+			WriteToFileOps writer;
+			writer.WriteToFile(filename, *headerInfo); // filename should be the original file name without suffix
+
+			// Loop to update all backups.
+			for (int i = 1; i < MAXFILE_COUNT; ++i) {
+				string backupFileName = string(filename); // This creates filenames like "hello.txt_1"
+				writer.WriteToFile(backupFileName.c_str(), *headerInfo);
 			}
+
+
+			return headerInfo.release();
 		}
 
-		return nullptr; // Return nullptr if no valid data was found or processed.
+		return nullptr;
 	}
+
 
 	void ReadFromFileOps::readFileData(const string& fullPath, unique_ptr<char[]>& fileData, size_t& fileSize) {
 		std::cout << "Reading data from file " << fullPath << std::endl;
@@ -111,30 +135,52 @@ namespace FileOps {
 
 
 	size_t ReadFromFileOps::FindValidIndex(const vector<unique_ptr<char[]>>& arrFileData, const vector<size_t>& arrFileDataSize) {
-		for (size_t i = 0; i < static_cast<unsigned long long>(MAXFILE_COUNT) - 1; ++i) {
-			if (!arrFileData[i]) continue;
+		for (size_t i = 0; i < static_cast<unsigned long long>(MAXFILE_COUNT); ++i) {
+			if (!arrFileData[i]) continue; // No data to compare.
+
+			string currentFileName = "primary file";
+			if (i > 0) {
+				currentFileName = "backup file " + std::to_string(i);
+			}
 
 			for (size_t j = i + 1; j < MAXFILE_COUNT; ++j) {
-				if (!arrFileData[j]) continue;
+				if (!arrFileData[j]) continue; // No data to compare.
+
+				// Debug prints to show the filenames being compared.
+				cout << "Comparing data blocks from: " << currentFileName;
+				if (j > 0) {
+					cout << " and backup file " << j;
+				}
+				else {
+					cout << " and primary file";
+				}
+				cout << endl;
 
 				DataBlock dataBlock1 = { arrFileData[i].get(), arrFileDataSize[i] };
 				DataBlock dataBlock2 = { arrFileData[j].get(), arrFileDataSize[j] };
 
-				// Debug prints
-				cout << "Comparing data blocks: " << endl;
-				cout << "Data Block 1: ";
+				// Debug prints to show the contents of each data block.
+				cout << "Data Block 1 from " << currentFileName << ": ";
 				for (size_t k = 0; k < dataBlock1.size; ++k) {
 					cout << dataBlock1.data[k] << " ";
 				}
 				cout << endl;
-				cout << "Data Block 2: ";
+
+				cout << "Data Block 2 from ";
+				if (j > 0) {
+					cout << "backup file " << j;
+				}
+				else {
+					cout << "primary file";
+				}
+				cout << ": ";
 				for (size_t k = 0; k < dataBlock2.size; ++k) {
 					cout << dataBlock2.data[k] << " ";
 				}
 				cout << endl;
 
 				if (PerformDataComparison(&dataBlock1, &dataBlock2)) {
-					cout << "Data blocks match. Index: " << i << endl;
+					cout << "Data blocks match. Using data from " << currentFileName << "." << endl;
 					return i;
 				}
 			}
@@ -142,6 +188,7 @@ namespace FileOps {
 		cout << "No valid index found." << endl;
 		return static_cast<size_t>(-1);  // No valid index found
 	}
+
 
 
 	bool ReadFromFileOps::PerformDataComparison(const DataBlock* dataBlock1, const DataBlock* dataBlock2) {
