@@ -5,6 +5,14 @@
 #include <iostream>
 
 namespace FileOps {
+	/**
+	 * Reads from a file with given filename in the specified directory, processes the data,
+	 * increments the read count, and updates both the primary file and backups with the new count.
+	 *
+	 * @param directory The directory path where the file is located.
+	 * @param filename The name of the file to be read.
+	 * @return A pointer to HeaderInfo containing the processed file data, or nullptr if an error occurs.
+	 */
 	HeaderInfo* ReadFromFileOps::ReadFromFile(const string& directory, const char* filename) {
 		std::cout << "Reading from file: " << directory << "/" << filename << std::endl;
 		vector<size_t> arrFileDataSize(MAXFILE_COUNT, 0);
@@ -64,7 +72,13 @@ namespace FileOps {
 		return nullptr;
 	}
 
-
+	/**
+	 * Reads the data from a file into memory.
+	 *
+	 * @param fullPath The full path to the file to be read.
+	 * @param fileData A smart pointer reference that will point to the read data.
+	 * @param fileSize Reference to a variable that will hold the size of the read data.
+	 */
 	void ReadFromFileOps::readFileData(const string& fullPath, unique_ptr<char[]>& fileData, size_t& fileSize) {
 		std::cout << "Reading data from file " << fullPath << std::endl;
 		ifstream file(fullPath, ios::binary | ios::ate);
@@ -80,6 +94,13 @@ namespace FileOps {
 		std::cout << "Read " << fileSize << " bytes from file " << fullPath << std::endl;
 	}
 
+	/**
+	 * Processes the raw file data to extract header information and check data validity.
+	 *
+	 * @param validData Pointer to the data buffer that contains the file data.
+	 * @param dataSize Size of the data buffer.
+	 * @return A pointer to HeaderInfo struct containing the file's header information if the data is valid, or nullptr otherwise.
+	 */
 	HeaderInfo* ReadFromFileOps::ProcessValidData(char* validData, size_t dataSize) {
 		// Allocate memory for HeaderInfo structure using new (preferred in C++)
 		HeaderInfo* headerInfo = new HeaderInfo;
@@ -133,7 +154,13 @@ namespace FileOps {
 		return headerInfo;
 	}
 
-
+	/**
+	 * Compares data blocks from the primary file and backups to find the first valid and consistent set of data.
+	 *
+	 * @param arrFileData A vector of smart pointers to character arrays containing file data.
+	 * @param arrFileDataSize A vector of sizes corresponding to each data block.
+	 * @return The index of the first valid data set, or -1 if no valid data is found.
+	 */
 	size_t ReadFromFileOps::FindValidIndex(const vector<unique_ptr<char[]>>& arrFileData, const vector<size_t>& arrFileDataSize) {
 		for (size_t i = 0; i < static_cast<unsigned long long>(MAXFILE_COUNT); ++i) {
 			if (!arrFileData[i]) continue; // No data to compare.
@@ -190,7 +217,13 @@ namespace FileOps {
 	}
 
 
-
+	/**
+	 * Compares two data blocks byte by byte to check if they are the same.
+	 *
+	 * @param dataBlock1 Pointer to the first data block to compare.
+	 * @param dataBlock2 Pointer to the second data block to compare.
+	 * @return True if the data blocks are identical, false otherwise.
+	 */
 	bool ReadFromFileOps::PerformDataComparison(const DataBlock* dataBlock1, const DataBlock* dataBlock2) {
 		if (dataBlock1->size != dataBlock2->size) {
 			return false;
