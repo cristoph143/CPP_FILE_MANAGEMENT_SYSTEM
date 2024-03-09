@@ -14,6 +14,8 @@ namespace FileOps {
 	 */
 	void WriteToFileOps::WriteToFile(const char* fileName, const HeaderInfo& header) {
 		cout << "Current working directory: " << filesystem::current_path() << endl;
+		cout << "Before Writing:" << endl;
+		PrintHeaderInfo(header);
 
 		if (!fileName) {
 			cerr << "Error: Null file name provided.\n";
@@ -44,6 +46,19 @@ namespace FileOps {
 		}
 		else {
 			cout << "Main file written successfully: " << filePath << endl;
+		}
+
+		// Write backup files
+		for (int i = 1; i < MAXFILE_COUNT; ++i) {
+			string backupFilenameStr = GetBackupFilename(fileName, i);
+			string backupFilePath = getFullPath("files", backupFilenameStr.c_str());
+			cout << "Writing backup file: " << backupFilePath << endl;
+			if (!WriteDataFile(backupFilePath.c_str(), pDataToWrite.get(), totalFileSize)) {
+				cerr << "Error: Failed to write backup file: " << backupFilePath << endl;
+			}
+			else {
+				cout << "Backup file written successfully: " << backupFilePath << endl;
+			}
 		}
 	}
 	/**

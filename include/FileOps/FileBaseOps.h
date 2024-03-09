@@ -5,6 +5,8 @@
 #include <filesystem>
 #include <fstream>  
 #include <memory>
+#include "FileOpsDefinitions.h"
+
 using namespace std;
 namespace fs = filesystem;
 
@@ -15,11 +17,12 @@ namespace FileOps {
 		bool FileExists(const std::string& name);
 		unsigned char CalculateCRC(const char* pData, size_t nDataSize);
 		void EncryptDecrypt(char* pData, size_t nDataSize);
-		string GetBackupFilename(const char* filename, int backupID);
 
 	public:
+		string GetBackupFilename(const char* filename, int backupID);
 		void createDirectory(const std::string& path);
 		FileOpsBase() = default;
 		virtual ~FileOpsBase() = default;
+		void PrintHeaderInfo(const HeaderInfo& header);
 	};
 }
