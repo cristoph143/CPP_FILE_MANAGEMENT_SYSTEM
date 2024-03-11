@@ -102,6 +102,12 @@ These are utility functions in `FileOpsBase` that support file operations:
   </a>
 </p>
 
+<p align="center">
+  <a href="" rel="noopener">
+    <img src="class_diagram.png" alt="Project logo" />
+  </a>
+</p>
+
 ## ✍️ Authors <a name = "authors"></a>
 
 - [@cristoph143](https://github.com/cristoph143) - author
